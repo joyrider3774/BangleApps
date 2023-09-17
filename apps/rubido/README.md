@@ -23,24 +23,28 @@ Note: Empty spots always use the color of the background and spots containing a 
 
 - Jump over Pegs vertically, horizontally and diagonally
 - Last Peg can be anywhere on the board
+
 ![](screenshot6.png)
 
 ### Easy
 
 - Jump over Pegs vertically, horizontally and diagonally
 - Last Peg must end on the middle board
+
 ![](screenshot8.png)
 
 ### Hard
 
 - Jump over Pegs vertically and horizontally only
 - Last Peg can be anywhere on the board
+
 ![](screenshot5.png)
 
 ### Very Hard
 
 - Jump over Pegs vertically and horizontally only
 - Last Peg must end on the middle board
+
 ![](screenshot5.png)
 
 ## Controls
