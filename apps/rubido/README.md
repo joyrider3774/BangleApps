@@ -38,7 +38,7 @@ Note: Empty spots always use the color of the background and spots containing a 
 - Jump over Pegs vertically and horizontally only
 - Last Peg can be anywhere on the board
 
-![](screenshot5.png)
+![](screenshot7.png)
 
 ### Very Hard
 
