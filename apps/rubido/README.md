@@ -1,7 +1,7 @@
 # Rubido
 Rubido is a little chinese checkers or solitaire game with four difficulties.
 
-![](screenshot3.png) ![](screenshot1.png) ![](screenshot2.png) ![](screenshot4.png)
+![](screenshot3.png) ![](screenshot1.png) ![](screenshot2.png)
 
 ## Game Features:
 
@@ -20,28 +20,28 @@ Note: Empty spots always use the color of the background and spots containing a 
 ## Diffuclties 
 
 ### Very Easy
+
+- Jump over Pegs vertically, horizontally and diagonally
+- Last Peg can be anywhere on the board
 ![](screenshot6.png)
 
-- Jump over Pegs vertically, horizontally and diagonally
-- Last Peg can be anywhere on the board
-
 ### Easy
+
+- Jump over Pegs vertically, horizontally and diagonally
+- Last Peg must end on the middle board
 ![](screenshot8.png)
 
-- Jump over Pegs vertically, horizontally and diagonally
-- Last Peg must end on the middle board
-
 ### Hard
-![](screenshot5.png)
 
 - Jump over Pegs vertically and horizontally only
 - Last Peg can be anywhere on the board
+![](screenshot5.png)
 
 ### Very Hard
-![](screenshot5.png)
 
 - Jump over Pegs vertically and horizontally only
 - Last Peg must end on the middle board
+![](screenshot5.png)
 
 ## Controls
 | Button | Action                                                                   |
