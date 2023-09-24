@@ -1,22 +1,21 @@
 //---------------------------------------------------------------------------------
 //globals & consts
 //---------------------------------------------------------------------------------
-const DEBUGMODERAMUSE = 0;
+const DEBUGMODERAMUSE = 1;
 
 let memStart;
 if (DEBUGMODERAMUSE)
   memStart = process.memory(true);
 
-const DEBUGMODE = 0;
+const DEBUGMODE = 1;
 const DEBUGMODEINPUT = 0;
-const DEBUGMODESPEED = 0;
+const DEBUGMODESPEED = 1;
 
-// The diffrent difficulties
+// The diffrent difficultys
 const VERYEASY = 0;
 const EASY = 1;
 const HARD = 2;
 const VERYHARD = 3;
-const DIFFCOUNT = 4;
 
 // The diffrent gameStates possible in the game
 const GSGAME = 1;
@@ -29,7 +28,7 @@ const GSINITDIFF = 50;
 const GSGAMEINIT = (GSGAME + GSINITDIFF);
 const GSTITLESCREENINIT = (GSTITLESCREEN + GSINITDIFF);
 const GSDIFFICULTYSELECTINIT = (GSDIFFICULTYSELECT + GSINITDIFF);
-const GSCREDITSINIT = (GSCREDITS + GSINITDIFF);
+const GSCREDITSInit = (GSCREDITS + GSINITDIFF);
 
 //game defines
 const NROFROWS = 9;
@@ -58,8 +57,6 @@ let movesLeftY;
 let movesLeftCount;
 let prevMovesLeftCount;
 let movesLeftTimer;
-var settings;
-let inOptions = false;
 
 //input
 let dragLeft = false;
@@ -145,18 +142,6 @@ const IMGCREDITS1 = {
   height: 18,
   bpp: 1,
   buffer: require("heatshrink").decompress(atob("ACEB/gEChngAYMe+AICs8YCAPB4AHBgcAAgMOgwQCjAEC8ExzFwh3O/0eg8Ah/P8P+u/z/E4gF4seeueMjApBgeHjnjzlg4EOgeYn/nhnjg/AmATBwE4IgMfwPB40OgPHnAYBg+emE544BBhlwn/hwP+n/On13gF+hkH8H+uHx/CKRA="))
-};
-const IMGOPTIONS1 = {
-  width: 76,
-  height: 22,
-  bpp: 1,
-  buffer: require("heatshrink").decompress(atob("ABvgAgcPwADBhwIDgP+AYPwCQk/+AVBEAkHw4SCBIlwvHvj+Oh+D3kPw8Dx/5/Hh/k/8f8uE4/+fxwHB/0/48Dx08+Hjx048eeCQPj58OnHzBwMHCQfnx848P4HAISFg/Hw8OEonnjxeB/+HHAWOnPh/0P/F4JYI0B/kP4HvgfOLwJhBRgKLETxIADCSQAHA"))
-};
-const IMGOPTIONS2 = {
-  width: 76,
-  height: 22,
-  bpp: 1,
-  buffer: require("heatshrink").decompress(atob("ABugAgcFAYUEBwmqCIQSEitQCogABgWCEg0AqFQosVgkFgMUgsCgWK1Go0GolWi1FQiFVCQMVoNUitCCQMo0GiAYICBCQNBosEiFRgkUEoQSEFAI4BCQsFoWChQlFhReBqsFHAUEiNA1UK1AiCCQOogtAosBoheBEoJpBhSeIoAIHCSQAHA="))
 };
 
 //---------------------------------------------------------------------------------
@@ -264,7 +249,7 @@ function CMainMenu_Destroy(MainMenu) {
 
 function CMainMenu_NextItem(MainMenu) {
   MainMenu.Selection++;
-  if (MainMenu.Selection == 4)
+  if (MainMenu.Selection == 3)
     MainMenu.Selection = 1;
   //playSelectSound();
 }
@@ -272,7 +257,7 @@ function CMainMenu_NextItem(MainMenu) {
 function CMainMenu_PreviousItem(MainMenu) {
   MainMenu.Selection--;
   if (MainMenu.Selection == 0)
-    MainMenu.Selection = 3;
+    MainMenu.Selection = 2;
   //playSelectSound();
 }
 
@@ -280,19 +265,14 @@ function CMainMenu_Draw(MainMenu) {
   g.drawImage(IMGTITLE, 0, 0);
   var w;
   if (MainMenu.Selection == 1) {
-    g.drawImage(IMGNEWGAME1, g.getWidth() / 2 - IMGNEWGAME1.width / 2, 57);
+    g.drawImage(IMGNEWGAME1, g.getWidth() / 2 - IMGNEWGAME1.width / 2, 67);
   } else {
-    g.drawImage(IMGNEWGAME2, g.getWidth() / 2 - IMGNEWGAME2.width / 2, 57);
+    g.drawImage(IMGNEWGAME2, g.getWidth() / 2 - IMGNEWGAME2.width / 2, 67);
   }
   if (MainMenu.Selection == 2) {
-    g.drawImage(IMGOPTIONS1, g.getWidth() / 2 - IMGOPTIONS1.width / 2, 87);
+    g.drawImage(IMGCREDITS1, g.getWidth() / 2 - IMGCREDITS1.width / 2, 105);
   } else {
-    g.drawImage(IMGOPTIONS2, g.getWidth() / 2 - IMGOPTIONS2.width / 2, 87);
-  }
-  if (MainMenu.Selection == 3) {
-    g.drawImage(IMGCREDITS1, g.getWidth() / 2 - IMGCREDITS1.width / 2, 117);
-  } else {
-    g.drawImage(IMGCREDITS2, g.getWidth() / 2 - IMGCREDITS2.width / 2, 117);
+    g.drawImage(IMGCREDITS2, g.getWidth() / 2 - IMGCREDITS2.width / 2, 105);
   }
 }
 
@@ -566,6 +546,8 @@ function Game() {
           if (part3)
             CPeg_Draw(part3);
           CSelector_Draw(GameSelector);
+          // if no moves are left see if the best pegs left value for the current difficulty is
+          // greater if so set te new value
 
           movesLeft();
 
@@ -592,8 +574,7 @@ function Game() {
       }
     }
   }
-  // if no moves are left see if the best pegs left value for the current difficulty is
-  // greater if so set te new value
+
   drawInfo(Moves, prevMovesLeftCount, prevPegsLeft, BestPegsLeft[Difficulty]);
   if (prevMovesLeftCount == 0) {
     if (BestPegsLeft[Difficulty] != 0) {
@@ -603,7 +584,7 @@ function Game() {
     } else {
       BestPegsLeft[Difficulty] = prevPegsLeft;
     }
-    SaveSettings();
+    //SaveSettings();
     // if it's the winning game play the winning sound and show the form with the winning message
     if (IsWinningGame(prevPegsLeft)) {
       //playWinnerSound();
@@ -621,23 +602,6 @@ function Game() {
 //---------------------------------------------------------------------------------
 //TitleScreen
 //---------------------------------------------------------------------------------
-function returnFromOptions() {
-  //hide menu
-  E.showMenu();
-  //need to reapply font
-  g.setFont("4x6:2");
-  //allow input again
-  inOptions=false;
-  //reload settings (not sure if needed)
-  LoadSettings();
-  //redraw
-  loop();
-}
-
-function showOptions() {
-  eval(require("Storage").read("rubido.settings.js"))(()=>returnFromOptions());
-}
-
 function TitleScreenInit() {}
 
 // main title screen loop
@@ -659,14 +623,7 @@ function TitleScreen() {
         GameState = GSDIFFICULTYSELECTINIT;
         break;
       case 2:
-        inOptions = true;
-        //need to set a small timeout
-        //otherwise a touch is immediatly registered
-        //in the menu (at least in emulator)
-        setTimeout(showOptions, 100);
-        return;
-      case 3:
-        GameState = GSCREDITSINIT;
+        GameState = GSCREDITSInit;
         break;
     }
   }
@@ -683,9 +640,6 @@ function DifficultySelect() {
   if (GameState == GSDIFFICULTYSELECTINIT) {
     DifficultySelectInit();
     GameState -= GSINITDIFF;
-  }
-  if (btnB) {
-    GameState = GSTITLESCREENINIT;
   }
   if (btnA) {
     GameState = GSGAMEINIT;
@@ -737,7 +691,7 @@ function CreditsInit() {}
 
 //Main Credits loop, will just show an image and wait for a button to be pressed
 function Credits() {
-  if (GameState == GSCREDITSINIT) {
+  if (GameState == GSCREDITSInit) {
     CreditsInit();
     GameState -= GSINITDIFF;
   }
@@ -752,36 +706,43 @@ function Credits() {
 //---------------------------------------------------------------------------------
 // Load the settings, if there isn't a settings file, set some initial values
 function LoadSettings() {
-  BestPegsLeft[VERYEASY] = 0;
-  BestPegsLeft[EASY] = 0;
-  BestPegsLeft[HARD] = 0;
-  BestPegsLeft[VERYHARD] = 0;
-
-  let file = require("Storage").open("rubido.hiscore.dat", "r");
-  if (file) {
+  let SettingsFile;
+  SettingsFile = pd.file.open("settings.dat", kFileReadData);
+  if (SettingsFile) {
+    pd.file.read(SettingsFile, BestPegsLeft[VERYEASY], sizeof(int));
+    pd.file.read(SettingsFile, BestPegsLeft[EASY], sizeof(int));
+    pd.file.read(SettingsFile, BestPegsLeft[HARD], sizeof(int));
+    pd.file.read(SettingsFile, BestPegsLeft[VERYHARD], sizeof(int));
     let tmp;
-    for (let i = 0; i < DIFFCOUNT; i++) {
-      tmp = file.readLine();
-        if (tmp !== undefined)
-          BestPegsLeft[i] = number(tmp);
-    }
+    pd.file.read(SettingsFile, tmp, sizeof(int));
+    setSoundOn(tmp);
+    pd.file.read(SettingsFile, tmp, sizeof(int));
+    setMusicOn(tmp);
+    pd.file.close(SettingsFile);
+  } else {
+    BestPegsLeft[VERYEASY] = 0;
+    BestPegsLeft[EASY] = 0;
+    BestPegsLeft[HARD] = 0;
+    BestPegsLeft[VERYHARD] = 0;
+    setSoundOn(true);
+    setMusicOn(true);
   }
-
-  settings = Object.assign({
-    // default values
-    sound: true,
-    inputRects: false,
-    theming: true,
-  }, require('Storage').readJSON("rubido.json", true) || {});
 }
 
 // Save the settings
 function SaveSettings() {
-  let file = require("Storage").open("rubido.hiscore.dat", "w");
-  if(file) {
-    for (let i = 0; i < DIFFCOUNT; i++) {
-      file.writeLine(BestPegsLeft[i].toString());
-    }
+  let SettingsFile;
+  SettingsFile = pd.file.open("settings.dat", kFileWrite);
+  if (SettingsFile) {
+    pd.file.write(SettingsFile, BestPegsLeft[VERYEASY], sizeof(int));
+    pd.file.write(SettingsFile, BestPegsLeft[EASY], sizeof(int));
+    pd.file.write(SettingsFile, BestPegsLeft[HARD], sizeof(int));
+    pd.file.write(SettingsFile, BestPegsLeft[VERYHARD], sizeof(int));
+    let tmp = isSoundOn();
+    pd.file.write(SettingsFile, tmp, sizeof(int));
+    tmp = isMusicOn();
+    pd.file.write(SettingsFile, tmp, sizeof(int));
+    pd.file.close(SettingsFile);
   }
 }
 
@@ -891,7 +852,7 @@ function IsWinningGame(pl) {
 function setupGame() {
   g.setFont("4x6:2");
   GameState = GSTITLESCREENINIT;
-  LoadSettings();
+  //LoadSettings();
   BoardParts = CBoardParts_Create();
   Menu = CMainMenu_Create();
   GameSelector = CSelector_Create(4, 4);
@@ -899,16 +860,8 @@ function setupGame() {
 
 function loop() {
   let startTime = Date().getTime();
-  if(settings.theming)
-  {
-    g.setColor(g.theme.fg);
-    g.setBgColor(g.theme.bg);
-  }
-  else
-  {
-    g.setColor(1,1,1);
-    g.setBgColor(0,0,0);
-  }
+  g.setColor(g.theme.fg);
+  g.setBgColor(g.theme.bg);
   needRedraw = 0;
   let prevGameState = GameState;
   switch (GameState) {
@@ -924,34 +877,13 @@ function loop() {
     case GSDIFFICULTYSELECT:
       DifficultySelect();
       break;
-    case GSCREDITSINIT:
+    case GSCREDITSInit:
     case GSCREDITS:
       Credits();
       break;
     default:
       break;
   }
-
-  if (!inOptions && settings.inputRects) {
-    const offsetvalue = 0.20;
-    let screenWidth = g.getWidth();
-    let screenHeight = g.getHeight();
-
-    let x1 = screenWidth * offsetvalue;
-    let x2 = screenWidth - screenWidth * offsetvalue;
-    let y1 = Bangle.appRect.y + screenHeight * offsetvalue;
-    let y2 = screenHeight - screenHeight * offsetvalue;
-    g.setColor(1, 0, 1);
-    //up
-    g.drawRect(0, Bangle.appRect.y, screenWidth - 1, y1);
-    //down
-    g.drawRect(0, y2, screenWidth - 1, screenHeight - 1);
-    //left
-    g.drawRect(0, Bangle.appRect.y, x1, screenHeight - 1);
-    //right
-    g.drawRect(x2, Bangle.appRect.y, screenWidth - 1, screenHeight - 1);
-  }
-
   g.flip();
   if ((GameState != prevGameState) && (GameState >= GSINITDIFF))
     needRedraw = 1;
@@ -973,8 +905,6 @@ function debugLog(val) {
 }
 
 function handleTouch(button, data) {
-  if(inOptions)
-    return;
   const offsetvalue = 0.20;
   let x1 = g.getWidth() * offsetvalue;
   let x2 = g.getWidth() - g.getWidth() * offsetvalue;
@@ -1004,8 +934,6 @@ function handleTouch(button, data) {
 }
 
 function btnPressed() {
-  if(inOptions)
-    return;
   dragLeft = false;
   dragRight = false;
   dragDown = false;

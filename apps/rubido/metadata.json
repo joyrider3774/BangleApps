@@ -11,6 +11,11 @@
   "allow_emulator":true,
   "storage": [
     {"name":"rubido.app.js","url":"app.js"},
+    {"name":"rubido.settings.js","url":"settings.js"},
     {"name":"rubido.img","url":"app-icon.js","evaluate":true}
+  ],
+  "data": [
+    {"name":"rubido.json"},
+    {"name":"rubido.hiscore.dat","storageFile":true}
   ]
 }
