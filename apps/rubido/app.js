@@ -9,7 +9,7 @@ if (DEBUGMODERAMUSE)
 
 const DEBUGMODE = 0;
 const DEBUGMODEINPUT = 0;
-const DEBUGMODESPEED = 1;
+const DEBUGMODESPEED = 0;
 
 // The diffrent difficultys
 const VERYEASY = 0;
@@ -51,6 +51,12 @@ BestPegsLeft[1] = 15;
 let GameState;
 let needRedraw;
 let pegsLeft;
+let prevPegsLeft;
+let movesLeftX;
+let movesLeftY;
+let movesLeftCount;
+let prevMovesLeftCount;
+let movesLeftTimer;
 
 //input
 let dragLeft = false;
@@ -423,9 +429,9 @@ function GameInit() {
   g.drawImage(IMGBACKGROUND, 0, 0);
   CBoardParts_Draw(BoardParts);
   CSelector_Draw(GameSelector);
-  pegsLeft = 0;
-  let ml = movesLeft();
-  drawInfo(0, ml, pegsLeft, BestPegsLeft[Difficulty]);
+  prevPegsLeft = 44;
+  prevMovesLeftCount = 4;
+  drawInfo(0, prevMovesLeftCount, prevPegsLeft, BestPegsLeft[Difficulty]);
 }
 
 function drawInfo(m, ml, pl, bl) {
@@ -499,6 +505,10 @@ function Game() {
     }
   }
   if (btnB) {
+    //need to stop a possible movesleft counting
+    //by clearing the interval
+    if(movesLeftTimer)
+      clearInterval(movesLeftTimer);
     GameState = GSTITLESCREENINIT;
   }
   if (btnA) {
@@ -536,31 +546,8 @@ function Game() {
           if (part3)
             CPeg_Draw(part3);
           CSelector_Draw(GameSelector);
-          // if no moves are left see if the best pegs left value for the current difficulty is
-          // greater if so set te new value
-          ml = movesLeft();
-          drawInfo(Moves, ml, pegsLeft, BestPegsLeft[Difficulty]);
-          if (ml == 0) {
-            if (BestPegsLeft[Difficulty] != 0) {
-              if (pegsLeft < BestPegsLeft[Difficulty]) {
-                BestPegsLeft[Difficulty] = pegsLeft;
-              }
-            } else {
-              BestPegsLeft[Difficulty] = pegsLeft;
-            }
-            //SaveSettings();
-            // if it's the winning game play the winning sound and show the form with the winning message
-            if (IsWinningGame(pegsLeft)) {
-              //playWinnerSound();
-              PrintForm("Congrats you have\nsolved the puzzle!\nTry a new\ndifficulty!\n\nTouch to continue");
-              PrintFormShown = true;
-            } else {
-              // show the loser messager, play loser sound
-              //playLoserSound();
-              PrintForm("You could not solve\nthe puzzle! Don't\ngive up, try it\nagain!\n\nTouch to continue");
-              PrintFormShown = true;
-            }
-          }
+
+          movesLeft();
 
         } else {
           // if we can't move to the spot, play the wrong move sound, and reset the selection to a red peg (instead of blue / selected)
@@ -585,9 +572,30 @@ function Game() {
       }
     }
   }
-
-  // Write some info to the screen
-  //need to repeat showing it until it's no longer shown
+  // if no moves are left see if the best pegs left value for the current difficulty is
+  // greater if so set te new value
+  drawInfo(Moves, prevMovesLeftCount, prevPegsLeft, BestPegsLeft[Difficulty]);
+  if (prevMovesLeftCount == 0) {
+    if (BestPegsLeft[Difficulty] != 0) {
+      if (prevPegsLeft < BestPegsLeft[Difficulty]) {
+        BestPegsLeft[Difficulty] = prevPegsLeft;
+      }
+    } else {
+      BestPegsLeft[Difficulty] = prevPegsLeft;
+    }
+    //SaveSettings();
+    // if it's the winning game play the winning sound and show the form with the winning message
+    if (IsWinningGame(prevPegsLeft)) {
+      //playWinnerSound();
+      PrintForm("Congrats you have\nsolved the puzzle!\nTry a new\ndifficulty!\n\nTouch to continue");
+      PrintFormShown = true;
+    } else {
+      // show the loser messager, play loser sound
+      //playLoserSound();
+      PrintForm("You could not solve\nthe puzzle! Don't\ngive up, try it\nagain!\n\nTouch to continue");
+      PrintFormShown = true;
+    }
+  }
 }
 
 //---------------------------------------------------------------------------------
@@ -737,37 +745,53 @@ function SaveSettings() {
   }
 }
 
-// procedure that calculates how many moves are possible in the current board state
+//procedure that starts the movesLeftIter function using an interval to loop over
+//all pegs
+function movesLeft() {
+  if(movesLeftTimer)
+    clearInterval(movesLeftTimer);
+  movesLeftCount = 0;
+  pegsLeft = 0;
+  movesLeftX = 0;
+  movesLeftY = 0;
+  movesLeftTimer = setInterval(movesLeftIter, 0);
+}
+
+// procedure that calculates how many moves are possible in the current board state for 1 Peg
 // we can simply do this by checking all parts and see if they can move to all directions
 // the canmoveto method in CPegs is does all the checking
-function movesLeft() {
+function movesLeftIter() {
   "compiled";
-  let result = 0;
-  pegsLeft = 0;
-  let BoardPart;
-  let Y, X;
-  for (Y = 0; Y < NROFROWS; Y++) {
-    for (X = 0; X < NROFCOLS; X++) {
-      BoardPart = BoardParts.Items[Y][X];
-      //print (BoardParts.Items[Y][X]);
-      // if there is a boardpart on that X,Y Coordinate
-      // check all direction if we can move to that if so increases the movesleft
-      if (BoardParts.Items[Y][X]) {
-        if (BoardParts.Items[Y][X].AnimPhase < 2) {
-          pegsLeft++;
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X + 2, Y, false);
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X - 2, Y, false);
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X, Y - 2, false);
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X, Y + 2, false);
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X + 2, Y - 2, false);
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X + 2, Y + 2, false);
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X - 2, Y + 2, false);
-          result += CPeg_CanMoveTo(BoardParts.Items[Y][X], X - 2, Y - 2, false);
-        }
-      }
+  // if there is a boardpart on that X,Y Coordinate
+  // check all direction if we can move to that if so increases the movesleft
+  if (BoardParts.Items[movesLeftY][movesLeftX]) {
+    if (BoardParts.Items[movesLeftY][movesLeftX].AnimPhase < 2) {
+      pegsLeft++;
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX + 2, movesLeftY, false);
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX - 2, movesLeftY, false);
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX, movesLeftY - 2, false);
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX, movesLeftY + 2, false);
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX + 2, movesLeftY - 2, false);
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX + 2, movesLeftY + 2, false);
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX - 2, movesLeftY + 2, false);
+      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX - 2, movesLeftY - 2, false);
     }
   }
-  return result;
+  movesLeftX++;
+  if(movesLeftX == NROFCOLS)
+  {
+    movesLeftY++;
+    if((movesLeftY == NROFROWS) && (movesLeftX == NROFCOLS))
+    {
+      clearInterval(movesLeftTimer);
+      prevMovesLeftCount = movesLeftCount;
+      prevPegsLeft = pegsLeft;
+      if(GameState == GSGAME)
+        loop();
+      return;
+    }
+    movesLeftX = 0;
+  }
 }
 
 // procedure that draws the board, boardparts info and a boxed message over the playfield
