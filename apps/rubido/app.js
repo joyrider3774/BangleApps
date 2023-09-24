@@ -801,7 +801,8 @@ function movesLeft() {
 // we can simply do this by checking all parts and see if they can move to all directions
 // the canmoveto method in CPegs is does all the checking
 function movesLeftIter() {
-  "compiled";
+  if((movesLeftY >= NROFROWS) || (movesLeftX >= NROFCOLS))
+    return;
   // if there is a boardpart on that X,Y Coordinate
   // check all direction if we can move to that if so increases the movesleft
   if (BoardParts.Items[movesLeftY][movesLeftX]) {
