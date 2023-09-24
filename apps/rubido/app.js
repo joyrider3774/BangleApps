@@ -763,7 +763,7 @@ function LoadSettings() {
     for (let i = 0; i < DIFFCOUNT; i++) {
       tmp = file.readLine();
         if (tmp !== undefined)
-          BestPegsLeft[i] = number(tmp);
+          BestPegsLeft[i] = Number(tmp);
     }
   }
 
