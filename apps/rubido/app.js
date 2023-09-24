@@ -780,7 +780,7 @@ function SaveSettings() {
   let file = require("Storage").open("rubido.hiscore.dat", "w");
   if(file) {
     for (let i = 0; i < DIFFCOUNT; i++) {
-      file.writeLine(BestPegsLeft[i].toString());
+      file.write(BestPegsLeft[i].toString() + "\n");
     }
   }
 }
