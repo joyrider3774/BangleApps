@@ -4,7 +4,7 @@
   "version":"0.01",
   "description": "A chinese checkers / solitaire game with four difficulties",
   "icon": "app.png",
-  "screenshots": [{"url":"screenshot1.png"},{"url":"screenshot2.png"},{"url":"screenshot3.png"},{"url":"screenshot4.png"},{"url":"screenshot5.png"},{"url":"screenshot6.png"},{"url":"screenshot7.png"},{"url":"screenshot8.png"}],
+  "screenshots": [{"url":"screenshot9.png"},{"url":"screenshot1.png"},{"url":"screenshot2.png"},{"url":"screenshot3.png"},{"url":"screenshot10.png"},{"url":"screenshot4.png"},{"url":"screenshot5.png"},{"url":"screenshot6.png"},{"url":"screenshot7.png"},{"url":"screenshot8.png"}],
   "tags": "game",
   "supports" : ["BANGLEJS2"],  
   "readme": "README.md",
