@@ -1,23 +1,25 @@
 # Rubido
-Rubido is a little chinese checkers or solitaire game with four difficulties.
+Rubido is a little Chinese checkers or solitaire game with four difficulties.
 
-![](screenshot3.png) ![](screenshot1.png) ![](screenshot2.png)
+![](screenshot9.png) ![](screenshot1.png) ![](screenshot2.png)
 
 ## Game Features:
 
 - Four difficulties
 - Saves best results
 - Uses colors from watches current theme
-- fullscreen game (no widgets are shown)
+- full screen game (no widgets are shown)
+- Buzzes to indicate (erroneous) movement
+- Directional movement using simulated d-pad on touch screen
 
 ## Playing the Game:
-The aim of the game in chinese checkers is to select a peg on the board and jump over another peg to land on an empty spot. When doing this the peg you jumped over will be removed from the board.
+The aim of the game in Chinese checkers is to select a peg on the board and jump over another peg to land on an empty spot. When doing this the peg you jumped over will be removed from the board.
 You need to play the game in such a way that only one peg remains on the board at the end. Depending on the difficulty you had chosen this can be either (only) in the middle of the board or anywhere on the board.
-Also depending on the difficulty you had chosen you can either jump horizontally and veritically over pegs or diagonally as well.
+Also depending on the difficulty you had chosen you can either jump horizontally and vertically over pegs or diagonally as well.
 
 Note: Empty spots always use the color of the background and spots containing a peg the color of the foreground / selector.
 
-## Diffuclties 
+## Difficulties 
 
 ### Very Easy
 
@@ -50,11 +52,11 @@ Note: Empty spots always use the color of the background and spots containing a 
 ## Controls
 | Button | Action                                                                   |
 |--------|--------------------------------------------------------------------------|
-| Upper screen Touch | Move up in menus, Move selector up during gameplay |
-| Lower screen Touch | Move down in menus, Move selector down during gameplay |
-| Left screen Touch | Move selector left during gameplay |
-| Right screen Touch | Move selector right during gameplay |
-| Middle screen Touch | Confirm in menu and level selector, (De)select a Peg |
+| Upper screen Touch | Move up in menus, Move selector up during game play |
+| Lower screen Touch | Move down in menus, Move selector down during game play |
+| Left screen Touch | Move selector left during game play, select previous difficulty |
+| Right screen Touch | Move selector right during game play, select next difficulty |
+| Middle screen Touch | Confirm in menu and difficulty selector, (De)select a Peg |
 | Btn or long middle screen touch | Back in menus, difficulty selector and game |
 
 ## Requests
