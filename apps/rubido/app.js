@@ -266,14 +266,14 @@ function CMainMenu_NextItem(MainMenu) {
   MainMenu.Selection++;
   if (MainMenu.Selection == 4)
     MainMenu.Selection = 1;
-  //playSelectSound();
+  playGameMoveSound();
 }
 
 function CMainMenu_PreviousItem(MainMenu) {
   MainMenu.Selection--;
   if (MainMenu.Selection == 0)
     MainMenu.Selection = 3;
-  //playSelectSound();
+  playGameMoveSound();
 }
 
 function CMainMenu_Draw(MainMenu) {
@@ -438,13 +438,62 @@ function CPeg_Destroy(Peg) {
 }
 
 //---------------------------------------------------------------------------------
+//Sound - Buzz
+//---------------------------------------------------------------------------------
+
+function playErrorSound() {
+  if (settings.sound) {
+    Bangle.buzz(150, 1);
+  }
+}
+
+function playMenuAcknowlege() {
+  if (settings.sound) {
+    Bangle.buzz(100, 0.75);
+  }
+}
+
+function playGameMoveSound() {
+  if (settings.sound) {
+    Bangle.buzz(75, 0.6);
+  }
+}
+
+function playWinSound() {
+  if (settings.sound) {
+    Bangle.buzz().then(()=>{
+      return new Promise(resolve=>setTimeout(resolve,150));
+    }).then(()=>{
+      return Bangle.buzz();
+    }).then(()=>{
+      return new Promise(resolve=>setTimeout(resolve,500));
+    }).then(()=>{
+      return Bangle.buzz();
+    }).then(()=>{
+      return new Promise(resolve=>setTimeout(resolve,300));
+    }).then(()=>{
+      return Bangle.buzz(1000);
+    });
+  }
+}
+
+function playLooseSound() {
+  if (settings.sound) {
+    Bangle.buzz().then(()=>{
+      return new Promise(resolve=>setTimeout(resolve,400));
+    }).then(()=>{
+      return Bangle.buzz(1000);
+    });
+  }
+}
+
+//---------------------------------------------------------------------------------
 //Game
 //---------------------------------------------------------------------------------
 function GameInit() {
   CSelector_SetPosition(GameSelector, 4, 4);
   InitBoard();
   Moves = 0;
-  //playStartSound();
   PrintFormShown = false;
   g.drawImage(IMGBACKGROUND, 0, 0);
   CBoardParts_Draw(BoardParts);
@@ -477,6 +526,7 @@ function Game() {
   }
   if (dragLeft) {
     if (!PrintFormShown) {
+      playGameMoveSound();
       //clear selector
       let part1 = CBoardParts_GetPart(BoardParts, CSelector_GetPosition(GameSelector).X, CSelector_GetPosition(GameSelector).Y);
       if (part1)
@@ -488,6 +538,7 @@ function Game() {
   } else {
     if (dragRight) {
       if (!PrintFormShown) {
+        playGameMoveSound();
         //clear selector
         let part1 = CBoardParts_GetPart(BoardParts, CSelector_GetPosition(GameSelector).X, CSelector_GetPosition(GameSelector).Y);
         if (part1)
@@ -499,6 +550,7 @@ function Game() {
     } else {
       if (dragUp) {
         if (!PrintFormShown) {
+          playGameMoveSound();
           //clear selector
           let part1 = CBoardParts_GetPart(BoardParts, CSelector_GetPosition(GameSelector).X, CSelector_GetPosition(GameSelector).Y);
           if (part1)
@@ -511,6 +563,7 @@ function Game() {
       } else {
         if (dragDown) {
           if (!PrintFormShown) {
+            playGameMoveSound();
             //clear selector
             let part1 = CBoardParts_GetPart(BoardParts, CSelector_GetPosition(GameSelector).X, CSelector_GetPosition(GameSelector).Y);
             if (part1)
@@ -530,16 +583,18 @@ function Game() {
     if(movesLeftTimer)
       clearInterval(movesLeftTimer);
     GameState = GSTITLESCREENINIT;
+    playMenuAcknowlege();
   }
   if (btnA) {
     if (PrintFormShown) {
       GameState = GSTITLESCREENINIT;
       PrintFormShown = false;
+      playMenuAcknowlege();
     } else {
       if (GameSelector.HasSelection) {
         // see if the selected boardpart can move to the current position
         if (CPeg_CanMoveTo(CBoardParts_GetPart(BoardParts, CSelector_GetSelection(GameSelector).X, CSelector_GetSelection(GameSelector).Y), CSelector_GetPosition(GameSelector).X, CSelector_GetPosition(GameSelector).Y, true)) {
-          //playGoodSound();
+          playMenuAcknowlege();
           //if so play a sound, increase the moves, set the selected part to empty and the current part to red
           Moves++;
           CBoardParts_GetPart(BoardParts, CSelector_GetSelection(GameSelector).X, CSelector_GetSelection(GameSelector).Y).AnimPhase = 6;
@@ -571,19 +626,19 @@ function Game() {
 
         } else {
           // if we can't move to the spot, play the wrong move sound, and reset the selection to a red peg (instead of blue / selected)
+          playErrorSound();
           let part1 = CBoardParts_GetPart(BoardParts, CSelector_GetSelection(GameSelector).X, CSelector_GetSelection(GameSelector).Y);
 
           part1.AnimPhase = 0;
           CPeg_Draw(part1);
           CSelector_Draw(GameSelector);
-          //playWrongSound();
         }
         CSelector_DeSelect(GameSelector); // deselect the selection
       } else {
         // we didn't have a selection, set the new selection
         let part1 = CBoardParts_GetPart(BoardParts, CSelector_GetPosition(GameSelector).X, CSelector_GetPosition(GameSelector).Y);
         if (part1.AnimPhase == 0) {
-          //playSelectSound();
+          playMenuAcknowlege();
           part1.AnimPhase = 1;
           CPeg_Draw(part1);
           CSelector_Draw(GameSelector);
@@ -595,25 +650,27 @@ function Game() {
   // if no moves are left see if the best pegs left value for the current difficulty is
   // greater if so set te new value
   drawInfo(Moves, prevMovesLeftCount, prevPegsLeft, BestPegsLeft[Difficulty]);
-  if (prevMovesLeftCount == 0) {
-    if (BestPegsLeft[Difficulty] != 0) {
-      if (prevPegsLeft < BestPegsLeft[Difficulty]) {
+  if(!PrintFormShown && (GameState == GSGAME)) {
+    if (prevMovesLeftCount == 0) {
+      if (BestPegsLeft[Difficulty] != 0) {
+        if (prevPegsLeft < BestPegsLeft[Difficulty]) {
+          BestPegsLeft[Difficulty] = prevPegsLeft;
+        }
+      } else {
         BestPegsLeft[Difficulty] = prevPegsLeft;
       }
-    } else {
-      BestPegsLeft[Difficulty] = prevPegsLeft;
-    }
-    SaveSettings();
-    // if it's the winning game play the winning sound and show the form with the winning message
-    if (IsWinningGame(prevPegsLeft)) {
-      //playWinnerSound();
-      PrintForm("Congrats you have\nsolved the puzzle!\nTry a new\ndifficulty!\n\nTouch to continue");
-      PrintFormShown = true;
-    } else {
-      // show the loser messager, play loser sound
-      //playLoserSound();
-      PrintForm("You could not solve\nthe puzzle! Don't\ngive up, try it\nagain!\n\nTouch to continue");
-      PrintFormShown = true;
+      SaveSettings();
+      // if it's the winning game play the winning sound and show the form with the winning message
+      if (IsWinningGame(prevPegsLeft)) {
+        playWinSound();
+        PrintForm("Congrats you have\nsolved the puzzle!\nTry a new\ndifficulty!\n\nTouch to continue");
+        PrintFormShown = true;
+      } else {
+        // show the loser messager, play loser sound
+        playLooseSound();
+        PrintForm("You could not solve\nthe puzzle! Don't\ngive up, try it\nagain!\n\nTouch to continue");
+        PrintFormShown = true;
+      }
     }
   }
 }
@@ -653,7 +710,7 @@ function TitleScreen() {
     CMainMenu_PreviousItem(Menu);
   }
   if (btnA) {
-    //playGoodSound();
+    playMenuAcknowlege();
     switch (CMainMenu_GetSelection(Menu)) {
       case 1:
         GameState = GSDIFFICULTYSELECTINIT;
@@ -686,11 +743,14 @@ function DifficultySelect() {
   }
   if (btnB) {
     GameState = GSTITLESCREENINIT;
+    playMenuAcknowlege();
   }
   if (btnA) {
     GameState = GSGAMEINIT;
+    playMenuAcknowlege();
   }
   if (dragLeft) {
+    playGameMoveSound();
     if (Difficulty == VERYHARD) {
       Difficulty = HARD;
     } else if (Difficulty == HARD) {
@@ -702,6 +762,7 @@ function DifficultySelect() {
     }
   }
   if (dragRight) {
+    playGameMoveSound();
     if (Difficulty == VERYEASY) {
       Difficulty = EASY;
     } else if (Difficulty == EASY) {
@@ -743,6 +804,7 @@ function Credits() {
   }
   if (btnA || btnB) {
     GameState = GSTITLESCREENINIT;
+    playMenuAcknowlege();
   }
   g.drawImage(IMGCREDITS, 0, 0);
 }
@@ -803,19 +865,21 @@ function movesLeft() {
 function movesLeftIter() {
   if((movesLeftY >= NROFROWS) || (movesLeftX >= NROFCOLS))
     return;
+
+  let boardPart = BoardParts.Items[movesLeftY][movesLeftX];
   // if there is a boardpart on that X,Y Coordinate
   // check all direction if we can move to that if so increases the movesleft
-  if (BoardParts.Items[movesLeftY][movesLeftX]) {
-    if (BoardParts.Items[movesLeftY][movesLeftX].AnimPhase < 2) {
+  if (boardPart) {
+    if (boardPart.AnimPhase < 2) {
       pegsLeft++;
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX + 2, movesLeftY, false);
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX - 2, movesLeftY, false);
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX, movesLeftY - 2, false);
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX, movesLeftY + 2, false);
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX + 2, movesLeftY - 2, false);
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX + 2, movesLeftY + 2, false);
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX - 2, movesLeftY + 2, false);
-      movesLeftCount += CPeg_CanMoveTo(BoardParts.Items[movesLeftY][movesLeftX], movesLeftX - 2, movesLeftY - 2, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX + 2, movesLeftY, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX - 2, movesLeftY, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX, movesLeftY - 2, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX, movesLeftY + 2, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX + 2, movesLeftY - 2, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX + 2, movesLeftY + 2, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX - 2, movesLeftY + 2, false);
+      movesLeftCount += CPeg_CanMoveTo(boardPart, movesLeftX - 2, movesLeftY - 2, false);
     }
   }
   movesLeftX++;
